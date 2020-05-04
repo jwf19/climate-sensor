@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 
-source ~/code/temperature_sensor/env/bin/activate
-python ~/code/temperature_sensor/getsensordata.py
-
+source ~/code/climate-sensor/env/bin/activate
+python ~/code/climate-sensor/getsensordata.py
