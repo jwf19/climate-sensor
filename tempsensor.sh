@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 echo "activating env"
-source ~/code/climate-sensor/env/bin/activate
+source /home/pi/code/climate-sensor/venv/bin/activate
 echo "running tempsensor.py"
-python ~/code/climate-sensor/tempsensor.py
-
+python /home/pi/code/climate-sensor/tempsensor.py
