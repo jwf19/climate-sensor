@@ -2,4 +2,4 @@ env/
 venv/
 
 sensor_config.yaml
-
+sensor_readings.csv
