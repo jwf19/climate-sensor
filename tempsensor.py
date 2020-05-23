@@ -16,25 +16,31 @@ BUCKET_KEY = config["BUCKET_KEY"]
 ACCESS_KEY = config["ACCESS_KEY"]
 MINUTES_BETWEEN_READS = config["MINUTES_BETWEEN_READS"]
 METRIC_UNITS = config["METRIC_UNITS"]
+CSV_FILE = "/home/pi/code/climate-sensor/sensor_readings.csv"
 # -------------------------------
 
-streamer = Streamer(bucket_name=BUCKET_NAME, bucket_key=BUCKET_KEY, access_key=ACCESS_KEY)
+# streamer = Streamer(bucket_name=BUCKET_NAME, bucket_key=BUCKET_KEY, access_key=ACCESS_KEY)
 while True:
+	data_row = []
 	sys_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 	cpu_temp = CPUTemperature().temperature
-	streamer.log(SENSOR_LOCATION_NAME + " CPU Temperature(C)", format(cpu_temp, ".2f"))
+#	streamer.log(SENSOR_LOCATION_NAME + " CPU Temperature(C)", format(cpu_temp, ".2f"))
 	print("\n{} System Time {}".format(SENSOR_LOCATION_NAME, sys_time))
 	print("{} CPU Temperature {:.2f} C".format(SENSOR_LOCATION_NAME, cpu_temp))
 	humidity, temp_c = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, 4)
 	if METRIC_UNITS:
-		streamer.log(SENSOR_LOCATION_NAME + " Temperature(C)", format(temp_c, ".2f"))
+#		streamer.log(SENSOR_LOCATION_NAME + " Temperature(C)", format(temp_c, ".2f"))
 		print("{} Temperature {:.2f} C".format(SENSOR_LOCATION_NAME, temp_c))
 	else:
 		temp_f = format(temp_c * 9.0 / 5.0 + 32.0, ".2f")
-		streamer.log(SENSOR_LOCATION_NAME + " Temperature(F)", temp_f)
-	humidity = format(humidity, ".2f")
-	streamer.log(SENSOR_LOCATION_NAME + " Humidity(%)", humidity)
+#		streamer.log(SENSOR_LOCATION_NAME + " Temperature(F)", temp_f)
+#	streamer.log(SENSOR_LOCATION_NAME + " Humidity(%)", format(humidity, ".2f"))
 	print("{} Humidity {} %".format(SENSOR_LOCATION_NAME, humidity))
-	streamer.flush()
+
+	data_row = '{},{},{},{},{}\n'.format(SENSOR_LOCATION_NAME, sys_time, cpu_temp, humidity, temp_c)  # TODO: allow farenheit temp
+	with open(CSV_FILE, 'a') as f:
+		f.write(data_row)
+
+#	streamer.flush()
 	time.sleep(60.0 * MINUTES_BETWEEN_READS)
 
