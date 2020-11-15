@@ -1,42 +1,51 @@
-import Adafruit_DHT
 import time
 from datetime import datetime
 import yaml
-from gpiozero import CPUTemperature
+import utils
 
 
 # ------- User Settings ---------
-with open("/home/pi/code/climate-sensor/sensor_config.yaml", "r") as cfg:
+with open("./sensor_config.yaml", "r") as cfg:
     config = yaml.load(cfg, Loader=yaml.FullLoader)
 
 SENSOR_LOCATION_NAME = config["SENSOR_LOCATION_NAME"]
-BUCKET_NAME = config["BUCKET_NAME"]
-BUCKET_KEY = config["BUCKET_KEY"]
-ACCESS_KEY = config["ACCESS_KEY"]
 MINUTES_BETWEEN_READS = config["MINUTES_BETWEEN_READS"]
-METRIC_UNITS = config["METRIC_UNITS"]
-CSV_FILE = "/home/pi/code/climate-sensor/sensor_readings.csv"
+CSV_FILE = "./sensor_readings.csv"
+AZURE_CONN_STR = config["AZURE"]["IOT_CONN_STR"].replace(' ', '')  # TODO: config loader func
+AZURE_MSG_TEXT = config["AZURE"]["MSG_TXT"]
+
 # -------------------------------
+# Connect to Azure
+iot_client = utils.iothub_client_init(AZURE_CONN_STR)
 
+# Log data until interrupted
 while True:
-    data_row = []
     sys_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    cpu_temp = CPUTemperature().temperature
-    print("\n{} System Time {}".format(SENSOR_LOCATION_NAME, sys_time))
-    print("{} CPU Temperature {:.2f} C".format(SENSOR_LOCATION_NAME, cpu_temp))
-    humidity, temp_c = Adafruit_DHT.read_retry(Adafruit_DHT.DHT22, 4)
+    cpu_temp = utils.read_pi_core_temp()
+#    print("\n{} System Time {}".format(SENSOR_LOCATION_NAME, sys_time))
+#    print("{} CPU Temperature {:.2f} C".format(SENSOR_LOCATION_NAME, cpu_temp))
 
-    if METRIC_UNITS:
-        print("{} Temperature {:.2f} C".format(SENSOR_LOCATION_NAME, temp_c))
-    else:
-        temp_f = format(temp_c * 9.0 / 5.0 + 32.0, ".2f")
+    humidity, temp_c = utils.read_temp_sensor()
+#    print("{} Temperature {:.2f} C".format(SENSOR_LOCATION_NAME, temp_c))
 
-    print("{} Humidity {} %".format(SENSOR_LOCATION_NAME, humidity))
+#    print("{} Humidity {} %".format(SENSOR_LOCATION_NAME, humidity))
 
-    # TODO: allow farenheit temp
+    # TODO: allow farenheit temp and configure in config
+    # TODO: supersede separate csv logging and send all to Azure
     data_row = '{},{},{},{},{}\n'.format(SENSOR_LOCATION_NAME, sys_time,
                                          cpu_temp, humidity, temp_c)
     with open(CSV_FILE, 'a') as f:
         f.write(data_row)
+
+    # Send to IoT hub in the cloud
+    #msg_kwargs = {'temperature': temp_c, 'humidity': humidity,
+    #              'location': 
+    iot_message = utils.prepare_iot_hub_message(AZURE_MSG_TEXT,
+                                                temperature=temp_c,
+                                                humidity=humidity,
+                                                location=SENSOR_LOCATION_NAME,
+                                                system_time=sys_time,
+                                                cpu_temperature=cpu_temp)
+    utils.iothub_client_send_telemetry(iot_client, iot_message)
 
     time.sleep(60.0 * MINUTES_BETWEEN_READS)
