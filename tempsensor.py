@@ -22,13 +22,13 @@ iot_client = utils.iothub_client_init(AZURE_CONN_STR)
 while True:
     sys_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cpu_temp = utils.read_pi_core_temp()
-    print("\n{} System Time {}".format(SENSOR_LOCATION_NAME, sys_time))
-    print("{} CPU Temperature {:.2f} C".format(SENSOR_LOCATION_NAME, cpu_temp))
+#    print("\n{} System Time {}".format(SENSOR_LOCATION_NAME, sys_time))
+#    print("{} CPU Temperature {:.2f} C".format(SENSOR_LOCATION_NAME, cpu_temp))
 
     humidity, temp_c = utils.read_temp_sensor()
-    print("{} Temperature {:.2f} C".format(SENSOR_LOCATION_NAME, temp_c))
+#    print("{} Temperature {:.2f} C".format(SENSOR_LOCATION_NAME, temp_c))
 
-    print("{} Humidity {} %".format(SENSOR_LOCATION_NAME, humidity))
+#    print("{} Humidity {} %".format(SENSOR_LOCATION_NAME, humidity))
 
     # TODO: allow farenheit temp and configure in config
     # TODO: supersede separate csv logging and send all to Azure
@@ -38,6 +38,8 @@ while True:
         f.write(data_row)
 
     # Send to IoT hub in the cloud
+    #msg_kwargs = {'temperature': temp_c, 'humidity': humidity,
+    #              'location': 
     iot_message = utils.prepare_iot_hub_message(AZURE_MSG_TEXT,
                                                 temperature=temp_c,
                                                 humidity=humidity,
