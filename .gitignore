@@ -2,5 +2,6 @@ env/
 venv/
 **/__pycache__
 
+settings.json
 sensor_config.yaml
 sensor_readings.csv
