@@ -17,3 +17,7 @@ def read_sensor():
 @app.route("/hello-world")
 def hello_world():
     return render_template("home.html", thing_to_say="Hello, World!")
+
+
+if __name__ == '__main__':
+  app.run(debug=True)
