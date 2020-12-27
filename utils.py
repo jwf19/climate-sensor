@@ -26,8 +26,8 @@ def iothub_client_init(connection_string):
     return client
 
 
-def prepare_iot_hub_message(format_string, kwargs):
-    return format_string.format(**kwargs)
+def prepare_iot_hub_message(format_string, message_data):
+    return format_string.format(**message_data)
 
 
 def iothub_client_send_telemetry(client, message):

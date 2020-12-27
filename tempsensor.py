@@ -38,14 +38,18 @@ while True:
         f.write(data_row)
 
     # Send to IoT hub in the cloud
-    #msg_kwargs = {'temperature': temp_c, 'humidity': humidity,
-    #              'location': 
+    message_data = {
+        'temperature': temp_c, 'humidity': humidity,
+        'location': SENSOR_LOCATION_NAME, 'system_time': sys_time,
+        'cpu_temperature': cpu_temp
+    }
     iot_message = utils.prepare_iot_hub_message(AZURE_MSG_TEXT,
-                                                temperature=temp_c,
-                                                humidity=humidity,
-                                                location=SENSOR_LOCATION_NAME,
-                                                system_time=sys_time,
-                                                cpu_temperature=cpu_temp)
+                                                message_data)
+                                                #temperature=temp_c,
+                                                #humidity=humidity,
+                                                #location=SENSOR_LOCATION_NAME,
+                                                #system_time=sys_time,
+                                                #cpu_temperature=cpu_temp)
     utils.iothub_client_send_telemetry(iot_client, iot_message)
 
     time.sleep(60.0 * MINUTES_BETWEEN_READS)
