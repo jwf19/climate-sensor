@@ -1,0 +1,38 @@
+import pandas as pd
+import plotly.graph_objects as go
+
+csv_file = "~/code/climate-sensor/data/sensor_readings_2020-12-20.csv"
+df = pd.read_csv(csv_file)
+
+df["system_time"] = pd.to_datetime(df["system_time"])
+df["year_month"] = df["system_time"].dt.strftime("%Y-%m")
+df["hour_of_day"] = df["system_time"].dt.hour
+
+ct_hour_month_temp_avg = pd.crosstab(
+    df["hour_of_day"],
+    df["year_month"],
+    values=df["sensor_temperature_c"],
+    aggfunc="mean",
+)
+agg_hour_month_temp_avg = ct_hour_month_temp_avg.melt(ignore_index=False).reset_index()
+
+grp_hour_temp = (
+    df.groupby(df["hour_of_day"])["sensor_temperature_c"]
+    .agg(["min", "mean", "median", "max"])
+    .melt(ignore_index=False)
+    .reset_index()
+)
+# grp_hour_temp.plot.scatter("hour_of_day", "value")
+
+fig = go.Figure()
+for metric in grp_hour_temp["variable"].unique():
+    data = grp_hour_temp.loc[grp_hour_temp["variable"] == metric]
+    x = data["hour_of_day"]
+    y = data["value"]
+    fig.add_trace(go.Scatter(x=x, y=y, mode="markers+lines", name=metric))
+fig.update_layout(
+    title="Temperature By Hour Of Day",
+    xaxis={"title": "Hour of Day"},
+    yaxis={"title": "Temperature (C)"},
+)
+fig.show()
