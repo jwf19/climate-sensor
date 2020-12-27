@@ -2,6 +2,8 @@ env/
 venv/
 **/__pycache__
 .vscode/
+data/
+notebooks/
 
 settings.json
 sensor_config.yaml
