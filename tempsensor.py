@@ -45,11 +45,6 @@ while True:
     }
     iot_message = utils.prepare_iot_hub_message(AZURE_MSG_TEXT,
                                                 message_data)
-                                                #temperature=temp_c,
-                                                #humidity=humidity,
-                                                #location=SENSOR_LOCATION_NAME,
-                                                #system_time=sys_time,
-                                                #cpu_temperature=cpu_temp)
     utils.iothub_client_send_telemetry(iot_client, iot_message)
 
     time.sleep(60.0 * MINUTES_BETWEEN_READS)
